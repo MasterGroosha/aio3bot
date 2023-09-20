@@ -45,6 +45,11 @@ def make_webapp_url(path: str | None) -> str:
 
 
 @lru_cache()
+def make_absolute_url(path: str) -> str:
+    return f"https://mastergroosha.github.io/aiogram-3-guide/{path}"
+
+
+@lru_cache()
 def make_message_text(title: str, path: str | None) -> str:
     return f"<b>{title}</b>\n{make_webapp_url(path)}"
 
@@ -61,9 +66,49 @@ def make_link(title: str, deeplink: str) -> InlineQueryResultArticle:
     )
 
 
+@lru_cache()
+def match_data(query_text: str) -> list[tuple[str, dict]]:
+    result = list()
+    seen_deeplinks = set()
+    for title, item in data.items():
+        if query_text.lower() in title.lower() and item["deeplink"] not in seen_deeplinks:
+            result.append((title, item))
+            seen_deeplinks.add(item["deeplink"])
+    return result
+
+
 @router.inline_query(F.query.len() > 0)
 async def filtered_search(inline_query: InlineQuery):
-    pass
+    results = list()
+    button_text = "Открыть книгу"
+    button_url = "https://mastergroosha.github.io/aiogram-3-guide/"
+
+    matched_data = match_data(inline_query.query)
+    if len(matched_data) == 0:
+        results.append(InlineQueryResultArticle(
+            id="empty",
+            title="Ничего не найдено!",
+            input_message_content=InputTextMessageContent(
+                message_text=make_message_text("Книга по разработке ботов", None),
+                parse_mode="HTML"
+            )
+        ))
+
+    else:
+        for title, item in matched_data:
+            results.append(make_link(title, item["deeplink"]))
+        if len(matched_data) == 1:
+            button_text = "Открыть раздел [webapp]"
+            button_url = make_absolute_url(matched_data[0][1]["path"])
+
+    await inline_query.answer(
+        results=results,
+        cache_time=10,
+        button=InlineQueryResultsButton(
+            text=button_text,
+            web_app=WebAppInfo(url=button_url)
+        )
+    )
 
 
 @router.inline_query()
