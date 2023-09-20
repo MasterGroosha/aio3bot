@@ -49,6 +49,18 @@ def make_text(title: str, path: str | None) -> str:
     return f"<b>{title}</b>\n{make_url(path)}"
 
 
+@lru_cache()
+def make_link(title: str, deeplink: str) -> InlineQueryResultArticle:
+    return InlineQueryResultArticle(
+        id=deeplink,
+        title=title,
+        input_message_content=InputTextMessageContent(
+            message_text=make_text(title, deeplink),
+            parse_mode="HTML"
+        )
+    )
+
+
 @router.inline_query(F.query.len() > 0)
 async def filtered_search(inline_query: InlineQuery):
     pass
@@ -62,15 +74,7 @@ async def empty_search(inline_query: InlineQuery):
         if deeplink in seen_urls:
             continue
         seen_urls.add(deeplink)
-        link = InlineQueryResultArticle(
-            id=deeplink,
-            title=title,
-            input_message_content=InputTextMessageContent(
-                message_text=make_text(title, deeplink),
-                parse_mode="HTML"
-            )
-        )
-        results.append(link)
+        results.append(make_link(title, deeplink))
     await inline_query.answer(
         results=results,
         cache_time=10,
