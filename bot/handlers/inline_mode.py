@@ -70,11 +70,11 @@ async def filtered_search(inline_query: InlineQuery):
 async def empty_search(inline_query: InlineQuery):
     results = list()
     seen_urls = set()
-    for title, deeplink in data.items():
-        if deeplink in seen_urls:
+    for title, item in data.items():
+        if item["deeplink"] in seen_urls:
             continue
-        seen_urls.add(deeplink)
-        results.append(make_link(title, deeplink))
+        seen_urls.add(item["deeplink"])
+        results.append(make_link(title, item["deeplink"]))
     await inline_query.answer(
         results=results,
         cache_time=10,
