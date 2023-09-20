@@ -37,7 +37,7 @@ data = {
 }
 
 
-def make_url(path: str | None) -> str:
+def make_webapp_url(path: str | None) -> str:
     base_url = "https://t.me/aio3bot/guide"
     if path is None:
         return base_url
@@ -45,8 +45,8 @@ def make_url(path: str | None) -> str:
 
 
 @lru_cache()
-def make_text(title: str, path: str | None) -> str:
-    return f"<b>{title}</b>\n{make_url(path)}"
+def make_message_text(title: str, path: str | None) -> str:
+    return f"<b>{title}</b>\n{make_webapp_url(path)}"
 
 
 @lru_cache()
@@ -55,7 +55,7 @@ def make_link(title: str, deeplink: str) -> InlineQueryResultArticle:
         id=deeplink,
         title=title,
         input_message_content=InputTextMessageContent(
-            message_text=make_text(title, deeplink),
+            message_text=make_message_text(title, deeplink),
             parse_mode="HTML"
         )
     )
