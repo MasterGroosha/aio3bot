@@ -36,12 +36,15 @@ data = {
 }
 
 
-def make_url(path: str) -> str:
-    return f"https://t.me/aio3bot/guide?startapp={path}"
+def make_url(path: str | None) -> str:
+    base_url = "https://t.me/aio3bot/guide"
+    if path is None:
+        return base_url
+    return f"{base_url}?startapp={path}"
 
 
 @lru_cache()
-def make_text(title: str, path: str) -> str:
+def make_text(title: str, path: str | None) -> str:
     return f"<b>{title}</b>\n{make_url(path)}"
 
 
