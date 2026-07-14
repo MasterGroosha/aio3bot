@@ -38,7 +38,7 @@ data = {
 
 
 def make_webapp_url(path: str | None) -> str:
-    base_url = "https://t.me/aio3bot/guide"
+    base_url = "https://telegram.dog/aio3bot/guide"
     if path is None:
         return base_url
     return f"{base_url}?startapp={path}"
